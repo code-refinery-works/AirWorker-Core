@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AirWorker - 圧倒的進捗偽装ポータル v2.0.4</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- パニックオーバーレイ（Escx3） -->
+<div class="panic-overlay" id="panicOverlay">
+  <div class="panic-logo">📚</div>
+  <div class="panic-title">TOEIC Complete Master</div>
+  <div class="panic-subtitle">Part 7 長文読解トレーニング — Level: Advanced</div>
+  <div class="panic-words">
+    <span class="panic-word">infrastructure</span>
+    <span class="panic-word">procurement</span>
+    <span class="panic-word">quarterly</span>
+    <span class="panic-word">stakeholder</span>
+    <span class="panic-word">synergy</span>
+    <span class="panic-word">compliance</span>
+    <span class="panic-word">leverage</span>
+    <span class="panic-word">scalability</span>
+  </div>
+  <div class="panic-progress"><div class="panic-progress-bar"></div></div>
+  <div class="panic-score">本日の正答率: <strong>87.3%</strong> ／ 連続学習: <strong>14日目</strong> 🔥</div>
+  <div style="margin-top:20px;font-size:0.7em;color:#aaa;">※ Escキーを押して作業に戻る</div>
+</div>
+
+<!-- Win-Win モーダル -->
+<div class="winwin-modal" id="winwinModal">
+  <div class="winwin-box">
+    <div class="winwin-title">⚡ WIN-WIN PROTOCOL ACTIVATED</div>
+    <div class="winwin-desc">
+      上司側ノードからの同期シグナルを検知しました。<br>
+      双方が「仕事しているフリ」モードであることが確認されました。<br><br>
+      <strong style="color:var(--green)">「エア・ワーク同期機能」</strong> を発動します。<br>
+      互いに視線を合わせず、平和に定時退社してください。<br><br>
+      <span style="color:var(--yellow);font-size:0.85em;">※ 本プロトコルの存在は双方の機密事項です。</span>
+    </div>
+    <button class="winwin-btn" onclick="document.getElementById('winwinModal').classList.remove('active')">
+      [ 了解・静かに退社する ]
+    </button>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="topbar-logo">⚡</div>
+  <div class="topbar-title">AirWorker // 圧倒的進捗偽装ポータル <span style="color:var(--dim);font-size:0.75em;">v2.4.1-beta</span></div>
+  <div class="topbar-actions">
+    <div class="threat-badge" id="topThreatBadge" title="脅威レベル">脅威:SAFE</div>
+    <button class="topbar-btn" onclick="triggerWinWin()">Win-Win</button>
+    <button class="topbar-btn danger" onclick="triggerPanic()">🚨 PANIC</button>
+  </div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="main-layout">
+
+  <!-- サイドバー -->
+  <div class="sidebar">
+    <div class="sidebar-section">MODULES</div>
+    <div class="sidebar-item active" data-panel="console"  onclick="switchPanel('console',this)">
+      <span>⌨</span> ハッカーConsole
+    </div>
+    <div class="sidebar-item" data-panel="sheet"    onclick="switchPanel('sheet',this)">
+      <span>📊</span> 超複雑Spreadsheet
+    </div>
+    <div class="sidebar-item" data-panel="git"      onclick="switchPanel('git',this)">
+      <span>🔀</span> Git-Zombie
+    </div>
+    <div class="sidebar-item" data-panel="boss"     onclick="switchPanel('boss',this)">
+      <span>👁</span> Boss Detector
+    </div>
+    <div class="sidebar-item" data-panel="sound"    onclick="switchPanel('sound',this)">
+      <span>🔊</span> 環境音Generator
+    </div>
+    <div class="sidebar-item" data-panel="meeting"  onclick="switchPanel('meeting',this)">
+      <span>📹</span> 会議うなずきLoop
+    </div>
+
+    <div class="sidebar-section" style="margin-top:20px;">SYSTEM</div>
+    <div class="sidebar-item" onclick="triggerWinWin()"><span>🤝</span> Win-Win Protocol</div>
+    <div class="sidebar-item" onclick="triggerPanic()"><span>🚨</span> PANIC Button</div>
+
+    <div style="flex:1"></div>
+    <div style="font-size:0.6em;color:var(--dim);padding:10px;line-height:1.6;">
+      ESC×3 = PANIC<br>
+      SLA: 99.999%<br>
+      UPTIME: <span id="sidebarUptime">00:00:00</span>
+    </div>
+  </div>
+
+  <!-- コンテンツエリア -->
+  <div class="content-area">
+
+    <!-- ===== PANEL: ハッカーConsole ===== -->
+    <div class="panel active" id="panel-console">
+      <div class="console-toolbar">
+        <span style="color:var(--green);font-size:0.8em;letter-spacing:1px;">ROOT@AIRWORKER:~$</span>
+        <div style="display:flex;gap:8px;">
+          <button class="console-btn" id="consoleToggleBtn" onclick="toggleConsole()">[ STOP ]</button>
+          <button class="console-btn" onclick="clearConsole()">[ CLEAR ]</button>
+          <select id="consoleMode" style="background:#0d150d;border:1px solid var(--border);color:var(--dim);font-family:'Courier New',monospace;font-size:0.75em;padding:4px 6px;border-radius:3px;cursor:pointer;">
+            <option value="hack">HACK MODE</option>
+            <option value="compile">COMPILE MODE</option>
+            <option value="network">NETWORK MODE</option>
+            <option value="ai">AI TRAINING MODE</option>
+          </select>
+        </div>
+      </div>
+      <div class="console-output" id="consoleOutput"></div>
+      <div class="console-input-row">
+        <span class="console-prompt">root@airworker:~$</span>
+        <input class="console-input" id="consoleInput" type="text" placeholder="コマンドを入力... (enterで実行)" autocomplete="off" />
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Spreadsheet ===== -->
+    <div class="panel" id="panel-sheet">
+      <div class="sheet-toolbar">
+        <button class="sheet-toolbar-btn" onclick="refreshSheet()">↻ Recalculate</button>
+        <button class="sheet-toolbar-btn" onclick="addSheetRow()">+ Row</button>
+        <button class="sheet-toolbar-btn">⬇ Export .xlsx</button>
+        <button class="sheet-toolbar-btn">🔗 Share</button>
+        <button class="sheet-toolbar-btn" onclick="sheetFlash()">⚡ Auto-Analyze</button>
+        <span style="font-size:0.65em;color:var(--dim);margin-left:auto;">Cells: <span id="cellCount">1,048,576</span> ／ Sheets: 47</span>
+      </div>
+      <div class="sheet-formula-bar">
+        <span class="sheet-cell-ref" id="activeCellRef">ZZ99999</span>
+        <span style="color:var(--dim);">fx</span>
+        <span class="sheet-formula-text" id="formulaText"></span>
+      </div>
+      <div class="sheet-wrap">
+        <table class="sheet-table" id="sheetTable"></table>
+      </div>
+      <div class="sheet-tab-bar">
+        <div class="sheet-tab active">Q4_Revenue_FINAL_v3</div>
+        <div class="sheet-tab">KPI_Master_DO_NOT_TOUCH</div>
+        <div class="sheet-tab">Pivot_666</div>
+        <div class="sheet-tab">TEMP_DELETE_LATER</div>
+        <div class="sheet-tab" style="color:var(--red);">⚠_ERROR_BACKUP</div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Git-Zombie ===== -->
+    <div class="panel" id="panel-git">
+      <div class="git-header">
+        <div class="git-header-left">
+          <div class="git-branch-badge">⎇ feat/phantom-work-v2</div>
+          <div style="font-size:0.7em;color:var(--dim);">remote: github.com/airworker/phantom-repo</div>
+        </div>
+        <div style="text-align:right;font-size:0.7em;color:var(--dim);">
+          <div>Next auto-push: <span id="nextPushTime" style="color:var(--yellow);">--:--:--</span></div>
+          <div>Commits today: <span id="commitCountToday" style="color:var(--green);">0</span></div>
+        </div>
+      </div>
+      <div class="git-stats-row">
+        <div class="git-stat-box">
+          <div class="git-stat-val" id="statTotalCommits">0</div>
+          <div class="git-stat-label">Total Commits</div>
+        </div>
+        <div class="git-stat-box">
+          <div class="git-stat-val" id="statDeepNight">0</div>
+          <div class="git-stat-label">深夜コミット</div>
+        </div>
+        <div class="git-stat-box">
+          <div class="git-stat-val" id="statStreak">7</div>
+          <div class="git-stat-label">Streak (days)</div>
+        </div>
+        <div class="git-stat-box">
+          <div class="git-stat-val" id="statCred" style="color:var(--yellow);">A+</div>
+          <div class="git-stat-label">信頼度スコア</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.72em;color:var(--dim);padding:0 15px 5px;letter-spacing:1px;">— COMMIT HISTORY —</div>
+      <div class="commit-list" id="commitList"></div>
+      <div style="padding:12px 15px;">
+        <button class="generate-commit-btn" onclick="generateCommit(true)">
+          ⚡ PUSH PHANTOM COMMIT NOW
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Boss Detector ===== -->
+    <div class="panel" id="panel-boss">
+      <div class="boss-left">
+        <div class="camera-view" id="cameraView">
+          <div class="camera-grid"></div>
+          <div id="cameraLabel" style="z-index:1;">📷 カメラ待機中</div>
+        </div>
+        <div class="threat-indicator">
+          <div class="threat-level safe" id="threatLevelText">SAFE</div>
+          <div style="font-size<overlap>
+        <div class="threat-level safe" id="threatLevelText">SAFE</div>
+          <div style="font-size
+</overlap>
+<continue>
+:0.65em;color:var(--dim);margin-top:4px;" id="threatSubText">上司の気配なし</div>
+        </div>
+        <div class="boss-detect-log" id="bossLog">
+          <div style="color:var(--dim);">// Detection log initialized...</div>
+        </div>
+      </div>
+      <div class="boss-right">
+        <div class="boss-stat-panel">
+          <div style="font-size:0.72em;color:var(--dim);letter-spacing:1px;margin-bottom:10px;">— DETECTION STATS —</div>
+          <div class="boss-stat-row"><span>検知回数(本日)</span><span id="bossDetectCount" style="color:var(--yellow);">0</span></div>
+          <div class="boss-stat-row"><span>回避成功</span><span id="bossEvadeCount" style="color:var(--green);">0</span></div>
+          <div class="boss-stat-row"><span>偽装切替速度</span><span id="bossEvadeSpeed" style="color:var(--cyan);">--ms</span></div>
+          <div class="boss-stat-row"><span>現在モード</span><span id="bossCamMode" style="color:var(--dim);">STANDBY</span></div>
+        </div>
+        <div class="boss-config-panel">
+          <div style="font-size:0.72em;color:var(--dim);letter-spacing:1px;margin-bottom:10px;">— AUTO-SWITCH TARGET —</div>
+          <label class="boss-radio-label">
+            <input type="radio" name="bossTarget" value="hacker" checked> ハッカーモードへ切替
+          </label>
+          <label class="boss-radio-label">
+            <input type="radio" name="bossTarget" value="sheet"> スプレッドシートへ切替
+          </label>
+          <label class="boss-radio-label">
+            <input type="radio" name="bossTarget" value="spec"> 仕様書ページへ切替
+          </label>
+        </div>
+        <div class="boss-simulate-btn-wrap">
+          <button class="generate-commit-btn" style="background:linear-gradient(135deg,#c0392b,#8e1010);" onclick="simulateBossDetection()">
+            👔 上司接近シミュレート
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Sound ===== -->
+    <div class="panel" id="panel-sound">
+      <div class="sound-grid">
+        <div class="sound-card" id="soundCard-typing">
+          <div class="sound-icon">⌨️</div>
+          <div class="sound-title">猛打タイピング</div>
+          <div class="sound-desc">青軸メカニカル・親の仇モード</div>
+          <div class="sound-vis" id="soundVis-typing">
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div>
+          </div>
+          <button class="sound-toggle-btn" id="soundBtn-typing" onclick="toggleSound('typing')">▶ 再生</button>
+        </div>
+        <div class="sound-card" id="soundCard-sigh">
+          <div class="sound-icon">😮‍💨</div>
+          <div class="sound-title">高解像度ため息</div>
+          <div class="sound-desc">15分毎・話しかけ不可結界</div>
+          <div class="sound-vis" id="soundVis-sigh">
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div>
+          </div>
+          <button class="sound-toggle-btn" id="soundBtn-sigh" onclick="toggleSound('sigh')">▶ 再生</button>
+        </div>
+        <div class="sound-card" id="soundCard-click">
+          <div class="sound-icon">🖱️</div>
+          <div class="sound-title">マウス連打音</div>
+          <div class="sound-desc">「悩んでる感」を演出</div>
+          <div class="sound-vis" id="soundVis-click">
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div>
+          </div>
+          <button class="sound-toggle-btn" id="soundBtn-click" onclick="toggleSound('click')">▶ 再生</button>
+        </div>
+        <div class="sound-card" id="soundCard-phone">
+          <div class="sound-icon">📞</div>
+          <div class="sound-title">架空の電話</div>
+          <div class="sound-desc">「忙しそう」最終兵器</div>
+          <div class="sound-vis" id="soundVis-phone">
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div><div class="sound-bar"></div>
+            <div class="sound-bar"></div><div class="sound-bar"></div>
+          </div>
+          <button class="sound-toggle-btn" id="soundBtn-phone" onclick="toggleSound('phone')">▶ 再生</button>
+        </div>
+      </div>
+      <div class="sound-master">
+        <span>マスターボリューム</span>
+        <input type="range" id="masterVolume" min="0" max="100" value="60" oninput="updateMasterVolume(this.value)">
+        <span id="masterVolumeVal">60%</span>
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Meeting ===== -->
+    <div class="panel" id="panel-meeting">
+      <div class="meeting-layout">
+        <div class="meeting-cam-area">
+          <div class="meeting-cam-frame" id="meetingCamFrame">
+            <div class="meeting-cam-overlay">
+              <div class="meeting-cam-name">鈴木 虚無</div>
+              <div class="meeting-cam-status" id="meetingCamStatus">● LIVE (ループ映像)</div>
+            </div>
+            <div class="meeting-nodding-anim" id="noddingAnim">
+              <div class="nodding-face" id="noddingFace">😐</div>
+            </div>
+          </div>
+          <div class="meeting-controls">
+            <button class="meeting-btn mic-btn" id="micBtn" onclick="toggleMic()">🎤 ミュート中</button>
+            <button class="meeting-btn cam-btn" id="camBtn" onclick="toggleMeetingCam()">📷 ループ ON</button>
+            <button class="meeting-btn nodding-btn" onclick="triggerNod()">🙂 手動うなずき</button>
+          </div>
+        </div>
+        <div class="meeting-side">
+          <div class="meeting-chat-box">
+            <div style="font-size:0.72em;color:var(--dim);letter-spacing:1px;margin-bottom:8px;">— 自動返答チャット —</div>
+            <div class="meeting-chat-log" id="meetingChatLog">
+              <div class="chat-msg system">// AirWorker Chat-Bot 待機中...</div>
+            </div>
+            <div class="meeting-chat-input-row">
+              <select id="chatTemplate" style="background:#111;color:var(--fg);border:1px solid var(--border);padding:4px 6px;font-size:0.75em;flex:1;">
+                <option value="agree">「おっしゃる通りです」</option>
+                <option value="check">「確認してご連絡します」</option>
+                <option value="progress">「現在対応中です」</option>
+                <option value="secret">「機密保持上お答えできません」</option>
+                <option value="paradigm">「マイクロサービス化に伴うパラダイムシフトの影響で…」</option>
+              </select>
+              <button class="generate-commit-btn" style="padding:4px 10px;font-size:0.75em;" onclick="sendAutoReply()">送信</button>
+            </div>
+          </div>
+          <div class="meeting-reaction-box">
+            <div style="font-size:0.72em;color:var(--dim);letter-spacing:1px;margin-bottom:8px;">— 表情プリセット —</div>
+            <div class="reaction-grid">
+              <button class="reaction-btn" onclick="setFace('😐','神妙')">😐 神妙</button>
+              <button class="reaction-btn" onclick="setFace('🤔','考察中')">🤔 考察中</button>
+              <button class="reaction-btn" onclick="setFace('😤','憤慨')">😤 憤慨</button>
+              <button class="reaction-btn" onclick="setFace('😴','限界')">😴 限界</button>
+              <button class="reaction-btn" onclick="setFace('😊','好印象')">😊 好印象</button>
+              <button class="reaction-btn" onclick="setFace('👍','承認')">👍 承認</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL: Settings ===== -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-layout">
+        <div class="settings-section">
+          <div class="settings-section-title">🔴 緊急自己破壊プロトコル</div>
+          <div class="settings-row">
+            <span class="settings-label">パニックボタン（Esc×3）</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="panicEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">逃避先URL</span>
+            <input type="text" id="panicUrl" value="https://www.toeic.or.jp/" class="settings-input">
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">履歴自動消去</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="clearHistory" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <button class="generate-commit-btn" style="background:linear-gradient(135deg,#c0392b,#8e1010);margin-top:8px;" onclick="triggerPanic()">
+            🚨 パニックボタン（テスト発動）
+          </button>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">⚙️ 一般設定</div>
+          <div class="settings-row">
+            <span class="settings-label">Win-Winプロトコル（上司も同じシステム）</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="winwinMode">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">AIマウスジグラー</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="mouseJiggler" onchange="toggleJiggler(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Slackステータス偽装</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="slackSpoof" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">リアル進捗生成（バグ注入）</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="bugInjector">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">📊 本日の活動サマリー</div>
+          <div class="settings-row"><span class="settings-label">推定 実際作業時間</span><span id="realWorkTime" style="color:var(--red);">--</span></div>
+          <div class="settings-row"><span class="settings-label">推定 偽装維持時間</span><span id="fakeWorkTime" style="color:var(--green);">--</span></div>
+          <div class="settings-row"><span class="settings-label">偽装効率スコア</span><span id="efficiencyScore" style="color:var(--yellow);">--</span></div>
+          <div class="settings-row"><span class="settings-label">節約した精神的エネルギー</span><span id="mentalSaved" style="color:var(--cyan);">--</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PANIC OVERLAY ===== -->
+    <div class="panic-overlay" id="panicOverlay">
+      <div class="panic-content">
+        <div class="panic-icon">🚨</div>
+        <div class="panic-title">緊急自己破壊プロトコル発動</div>
+        <div class="panic-sub">CLEARING EVIDENCE... REDIRECTING...</div>
+        <div class="panic-bar-wrap"><div class="panic-bar" id="panicBar"></div></div>
+      </div>
+    </div>
+
+    <!-- ===== BOSS ALERT OVERLAY ===== -->
+    <div class="boss-alert-overlay" id="bossAlertOverlay">
+      <div class="boss-alert-content">
+        <div style="font-size:2em;">👔</div>
+        <div style="color:var(--red);font-weight:bold;letter-spacing:2px;">BOSS DETECTED</div>
+        <div style="font-size:0.75em;color:var(--dim);">偽装画面へ切替中...</div>
+      </div>
+    </div>
+
+  </div><!-- end .container -->
+
+    <script src="js/app.js"></script>
+</body>
+</html>
